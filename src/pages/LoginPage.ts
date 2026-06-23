@@ -98,19 +98,20 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * Enter the 6-digit OTP. The component auto-submits on the final real
-   * keystroke, so we type digit-by-digit (`pressSequentially`) rather than
-   * `fill()`, which does not fire the key handler that triggers submission.
+   * Enter the 6-digit OTP (always `111111` in UAT) and submit.
+   *
+   * `fill()` each box directly sets the value and fires the input event the
+   * controlled component listens to — avoiding the focus auto-advance race that
+   * dropped/doubled digits when typing box-by-box. Pressing Enter then submits
+   * (some roles auto-submit on the last digit; Enter is the reliable trigger and
+   * a no-op once the form has navigated).
    */
   private async enterOtp(otp: string): Promise<void> {
     const digits = otp.split('');
     expect(digits, 'OTP must be 6 digits').toHaveLength(6);
     for (let i = 0; i < digits.length; i++) {
-      await this.otpBox(i).pressSequentially(digits[i]);
+      await this.otpBox(i).fill(digits[i]);
     }
-    // Some roles auto-submit on the final keystroke; others don't. Pressing
-    // Enter is the reliable trigger across all roles (verified in Phase 1) and
-    // is a no-op once the form has already navigated.
     await this.page.keyboard.press('Enter');
   }
 }

@@ -185,3 +185,20 @@ routes and assert redirect/forbidden).
       wrong password, wrong OTP, expired OTP) and any account lockout.
 - [ ] Confirm Individual "Sign" action and the Company "Sign/Approve" actions.
 - [ ] Cross-role deep-link RBAC behaviour (redirect vs. 403).
+
+## 9. Findings surfaced during implementation (Phase 3)
+
+- **Unauth/forbidden routing is inconsistent.** Deep-linking an unauthenticated
+  user — or a non-admin into `/admin/*` — does **not** reliably redirect to
+  `/login`; the SPA often leaves the URL unchanged and renders a **blank shell**.
+  Tests therefore assert the _security property_ (no authenticated shell / no
+  admin-only nav) rather than a URL redirect. Worth confirming with the team
+  whether a hard redirect is intended.
+- **Individual dashboard data widgets never finish loading.** For the test
+  account, the individual dashboard's General Information + signed/unsigned
+  count cards sit on loading spinners indefinitely (>30s); the data API does not
+  resolve. Company KPIs load fine. Tracked as `IND-001b` (test.fixme) — the
+  individual's real data is still covered via the contracts table (`IND-101`).
+- **SPA splash on deep-link.** Landing directly on a dashboard with a restored
+  session shows a splash before the shell renders; page objects allow a generous
+  wait for the authenticated shell.

@@ -11,9 +11,7 @@ export function authFile(role: Role): string {
 }
 
 /** How long a saved session is trusted before setup re-mints it. */
-export const SESSION_MAX_AGE_MS = Number(
-  process.env.SESSION_MAX_AGE_MS ?? `${2 * 60 * 60 * 1000}`,
-);
+export const SESSION_MAX_AGE_MS = Number(process.env.SESSION_MAX_AGE_MS ?? `${2 * 60 * 60 * 1000}`);
 
 /**
  * True when a role already has a recently-saved session. Setup reuses it

@@ -44,4 +44,18 @@ export class CompanyContractsPage extends BasePage {
       timeout: 30_000,
     });
   }
+
+  async search(query: string): Promise<void> {
+    const box = this.page.getByRole('textbox', { name: /Search/i }).first();
+    await box.fill(query);
+    await box.press('Enter');
+    await this.page.waitForTimeout(1500); // debounced server search
+  }
+
+  /** Assert a row containing the given text is present in the current tab. */
+  async expectRowContaining(text: string): Promise<void> {
+    await expect(this.page.getByRole('row', { name: new RegExp(text, 'i') }).first()).toBeVisible({
+      timeout: 30_000,
+    });
+  }
 }

@@ -27,3 +27,6 @@ Thumbs.db
 .idea/
 .vscode/
 .playwright-mcp/
+
+# Exploration scratch output
+explore-out/

@@ -13,10 +13,31 @@ export function uniqueName(prefix = 'e2e'): string {
   return `${prefix}-${stamp}-${rand}`;
 }
 
-export interface ContractDraft {
-  name: string;
+import path from 'node:path';
+
+/** Absolute paths to committed sample documents for upload tests. */
+export const sampleFiles = {
+  pdf: path.resolve('tests/fixtures/files/sample-contract.pdf'),
+  unsupported: path.resolve('tests/fixtures/files/not-a-document.txt'),
+} as const;
+
+/** National ID of the Individual test account, used as the contract recipient. */
+export const TEST_RECIPIENT_ID = process.env.INDIVIDUAL_USERNAME ?? '1012131452';
+
+export interface ContractDetails {
+  fileName: string;
+  contractNumber: string;
+  gracePeriod: string;
+  description?: string;
 }
 
-export function buildContractDraft(overrides: Partial<ContractDraft> = {}): ContractDraft {
-  return { name: uniqueName('contract'), ...overrides };
+/** Unique, idempotent contract details for an upload/create run. */
+export function buildContractDetails(overrides: Partial<ContractDetails> = {}): ContractDetails {
+  const stamp = Date.now().toString().slice(-9);
+  return {
+    fileName: uniqueName('contract'),
+    contractNumber: `AUT-${stamp}`,
+    gracePeriod: '3',
+    ...overrides,
+  };
 }

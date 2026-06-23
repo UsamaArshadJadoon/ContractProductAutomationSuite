@@ -41,9 +41,15 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   projects: [
+    // Mints one reusable session per role; everything else depends on it.
+    {
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/,
+    },
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
     },
   ],
 });

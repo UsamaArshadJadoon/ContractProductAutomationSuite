@@ -49,16 +49,16 @@
 
 ## 3. Pre-login features (public)
 
-| Feature | Details | Status |
-| --- | --- | --- |
-| Role-selection landing | "Company Login" / "Individual Login" entry buttons; tagline; footer (copyright © 2026, Saudi/gov logos) | ✅ walked |
-| Language toggle | Arabic ⇄ English, persists | ✅ walked |
-| Company Login form | Email + Password (with show/hide), "Forget Password?", "Login", "Don't have an account? Register" | ✅ walked |
-| Individual Login form | **Two-step**: "ID Number" + "Continue" → Password + "Login" | ✅ walked |
-| Onboarding Status | Header button (`طلب الانضمام للمنصة` / "Onboarding Status") — public onboarding/application status | ⚠️ not yet walked |
-| Forget Password | Link on both login forms | ⚠️ not yet walked |
-| Register | "Register" link on both forms (new-account onboarding) | ⚠️ not yet walked |
-| Field validation | Empty/invalid email, empty password, invalid OTP, expired OTP, lockout | ⚠️ not yet walked |
+| Feature                | Details                                                                                                 | Status            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- | ----------------- |
+| Role-selection landing | "Company Login" / "Individual Login" entry buttons; tagline; footer (copyright © 2026, Saudi/gov logos) | ✅ walked         |
+| Language toggle        | Arabic ⇄ English, persists                                                                              | ✅ walked         |
+| Company Login form     | Email + Password (with show/hide), "Forget Password?", "Login", "Don't have an account? Register"       | ✅ walked         |
+| Individual Login form  | **Two-step**: "ID Number" + "Continue" → Password + "Login"                                             | ✅ walked         |
+| Onboarding Status      | Header button (`طلب الانضمام للمنصة` / "Onboarding Status") — public onboarding/application status      | ⚠️ not yet walked |
+| Forget Password        | Link on both login forms                                                                                | ⚠️ not yet walked |
+| Register               | "Register" link on both forms (new-account onboarding)                                                  | ⚠️ not yet walked |
+| Field validation       | Empty/invalid email, empty password, invalid OTP, expired OTP, lockout                                  | ⚠️ not yet walked |
 
 ## 4. Authentication flows
 
@@ -91,6 +91,7 @@ Creating Contracts, Edit Requests.
 ### 5.2 Company Admin (`/company/*`)
 
 **Navigation (✅ fully captured):**
+
 - Dashboard — `/company/dashboard`
 - Company Info Update Requests — `/company/company-info-update-requests`
 - **Management ▾**
@@ -115,6 +116,7 @@ chart (with Filter); **Invoices Summary** (Pending / Paid / Expired); **Bundles 
 chart; Gregorian + Hijri year selectors; Refresh.
 
 **Contracts Management (✅):**
+
 - **"Create Contract"** → 3-step wizard at `…/create-contract`:
   **Upload Document → Add Recipients → Prepare Document** (core e-signature flow;
   **creating contracts is authorized in UAT** — see Open gaps / data strategy).
@@ -124,6 +126,7 @@ chart; Gregorian + Hijri year selectors; Refresh.
 ### 5.3 Individual (`/individual/*`)
 
 **Navigation (✅ fully captured):**
+
 - Dashboard — `/individual/dashboard`
 - **Management ▾** → Contracts Management — `/individual/management/contract-management`
 - Logout
@@ -144,13 +147,13 @@ Pagination (Total 650) / Go-to-page. Unsigned rows are expected to expose a **Si
 Derived from the captured navigation. Phase 2 will assert that lower-privilege roles
 **cannot** see/reach Admin-only areas.
 
-| Capability / route | Admin | Company Admin | Individual |
-| --- | :--: | :--: | :--: |
-| `/admin/*` (Management, Service Providers, Subscriptions, Invoices, Requests, Reports, Notifications, Translation, Settings) | ✅ | ❌ | ❌ |
-| Company management (Contracts/Individuals/Entities/Users), Templates, Subscriptions, Invoices, Portal/API settings (`/company/*`) | n/a¹ | ✅ | ❌ |
-| Create Contract (3-step wizard) | n/a¹ | ✅ | ❌ |
-| Own contracts list + view/history/file | n/a¹ | ✅ | ✅ |
-| Sign a contract | n/a¹ | ✅(?) | ✅ |
+| Capability / route                                                                                                                | Admin | Company Admin | Individual |
+| --------------------------------------------------------------------------------------------------------------------------------- | :---: | :-----------: | :--------: |
+| `/admin/*` (Management, Service Providers, Subscriptions, Invoices, Requests, Reports, Notifications, Translation, Settings)      |  ✅   |      ❌       |     ❌     |
+| Company management (Contracts/Individuals/Entities/Users), Templates, Subscriptions, Invoices, Portal/API settings (`/company/*`) | n/a¹  |      ✅       |     ❌     |
+| Create Contract (3-step wizard)                                                                                                   | n/a¹  |      ✅       |     ❌     |
+| Own contracts list + view/history/file                                                                                            | n/a¹  |      ✅       |     ✅     |
+| Sign a contract                                                                                                                   | n/a¹  |     ✅(?)     |     ✅     |
 
 ¹ Admin has its own surface; whether Admin can also reach `/company/*` or `/individual/*`
 routes directly is **⚠️ to verify** (good RBAC test: deep-link each role into the others'

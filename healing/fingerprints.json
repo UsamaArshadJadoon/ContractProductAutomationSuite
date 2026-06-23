@@ -1,0 +1,22 @@
+{
+  "demo.companyLoginButton": {
+    "tag": "button",
+    "id": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "text": "Company Login",
+    "name": "Company Login",
+    "classList": ["login-btn"]
+  },
+  "demo.driftsToIndividual": {
+    "tag": "button",
+    "id": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "text": "people_altIndividual Login",
+    "name": "people_altIndividual Login",
+    "classList": ["login-btn"]
+  }
+}

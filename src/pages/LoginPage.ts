@@ -51,6 +51,9 @@ export class LoginPage extends BasePage {
   async goto(): Promise<void> {
     await this.page.goto('/login');
     await this.ensureLanguage();
+    // Wait out the SPA splash so the role-selection screen is actually rendered
+    // before callers interact (otherwise locators probe a blank page).
+    await this.companyLoginButton.first().waitFor({ state: 'visible' });
   }
 
   /**

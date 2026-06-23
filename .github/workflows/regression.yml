@@ -1,0 +1,129 @@
+name: Regression (Nightly)
+
+# Full @regression suite: nightly + on demand. Auth once, then run sharded in
+# parallel — the shards REUSE the shared session so N machines don't each log
+# in and trip the login rate limit (HTTP 429).
+on:
+  schedule:
+    - cron: '0 2 * * *' # 02:00 UTC nightly
+  workflow_dispatch:
+    inputs:
+      shards:
+        description: 'Number of parallel shards'
+        default: '4'
+
+concurrency:
+  group: regression-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: 'true'
+  BASE_URL: ${{ secrets.BASE_URL }}
+  DEFAULT_LANGUAGE: en
+  ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+  ADMIN_OTP: ${{ secrets.ADMIN_OTP }}
+  COMPANY_ADMIN_USERNAME: ${{ secrets.COMPANY_ADMIN_USERNAME }}
+  COMPANY_ADMIN_PASSWORD: ${{ secrets.COMPANY_ADMIN_PASSWORD }}
+  COMPANY_ADMIN_OTP: ${{ secrets.COMPANY_ADMIN_OTP }}
+  INDIVIDUAL_USERNAME: ${{ secrets.INDIVIDUAL_USERNAME }}
+  INDIVIDUAL_PASSWORD: ${{ secrets.INDIVIDUAL_PASSWORD }}
+  INDIVIDUAL_OTP: ${{ secrets.INDIVIDUAL_OTP }}
+
+jobs:
+  # 1) Mint one session per role and publish them for the shards to reuse.
+  auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Authenticate all roles
+        run: npx playwright test --project=setup
+      - name: Publish sessions
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-state
+          path: .auth/
+          retention-days: 1
+
+  # 2) Run the full suite sharded; each shard reuses the shared session.
+  test:
+    needs: auth
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Restore shared sessions
+        uses: actions/download-artifact@v4
+        with:
+          name: auth-state
+          path: .auth/
+      - name: Run @regression (shard ${{ matrix.shard }}/4)
+        run: npx playwright test --grep @regression --shard=${{ matrix.shard }}/4
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: blob-report/
+          retention-days: 7
+      - name: Upload traces/video on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.shard }}
+          path: test-results/
+          retention-days: 7
+
+  # 3) Merge shard blob reports into one HTML report.
+  report:
+    needs: test
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Download all blob reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+      - name: Merge into HTML report
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-html-report
+          path: playwright-report/
+          retention-days: 14
+      - name: Job summary
+        run: echo "### Regression report ready — see the **regression-html-report** artifact." >> "$GITHUB_STEP_SUMMARY"

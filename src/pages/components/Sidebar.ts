@@ -12,8 +12,9 @@ import { expect, type Locator, type Page } from '@playwright/test';
 export class Sidebar {
   constructor(private readonly page: Page) {}
 
-  private get root(): Locator {
-    return this.page.getByRole('navigation').first();
+  /** The Logout control is present in every authenticated portal's sidebar. */
+  private get logoutButton(): Locator {
+    return this.page.getByRole('button', { name: /Logout Account/i });
   }
 
   /** A nav entry (link or button) by its visible label. */
@@ -43,13 +44,17 @@ export class Sidebar {
   }
 
   async logout(): Promise<void> {
-    await this.page.getByRole('button', { name: /Logout Account/i }).click();
+    await this.logoutButton.click();
     await this.page.waitForURL(/\/login/);
   }
 
-  /** Confirm the sidebar (hence an authenticated shell) is rendered. */
+  /**
+   * Confirm the sidebar (hence the authenticated shell) is rendered. The SPA
+   * shows a splash while it bootstraps after a deep-link into a session, so
+   * allow a generous wait for the shell to appear.
+   */
   async expectLoaded(): Promise<void> {
-    await expect(this.root).toBeVisible();
-    await this.expectVisible('Dashboard');
+    await expect(this.item('Dashboard').first()).toBeVisible({ timeout: 30_000 });
+    await expect(this.logoutButton).toBeVisible();
   }
 }

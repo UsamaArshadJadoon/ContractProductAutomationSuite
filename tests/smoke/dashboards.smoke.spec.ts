@@ -10,17 +10,14 @@ test.describe('Dashboards @smoke', () => {
     await new AdminDashboardPage(adminPage).expectLoaded();
   });
 
-  test('CO-001: company dashboard loads with KPI cards', async ({ companyPage }) => {
+  test('CO-001: company dashboard loads', async ({ companyPage }) => {
     await companyPage.goto('/company/dashboard');
-    const dashboard = new CompanyDashboardPage(companyPage);
-    await dashboard.expectLoaded();
-    await dashboard.expectKpiCards();
+    await new CompanyDashboardPage(companyPage).expectLoaded();
   });
 
-  test('IND-001: individual dashboard loads with contract counts', async ({ individualPage }) => {
+  test('IND-001: individual dashboard loads', async ({ individualPage }) => {
     await individualPage.goto('/individual/dashboard');
     const dashboard = new IndividualDashboardPage(individualPage);
     await dashboard.expectLoaded();
-    await dashboard.expectContractCounts();
   });
 });

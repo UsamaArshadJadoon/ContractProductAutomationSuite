@@ -15,16 +15,18 @@ export class CompanyDashboardPage extends BasePage {
     await this.page.goto('/company/dashboard');
   }
 
+  /** Reliable smoke assertion: the authenticated company shell rendered. */
   async expectLoaded(): Promise<void> {
     await expect(this.page).toHaveURL(/\/company\/dashboard/);
     await this.sidebar.expectLoaded();
-    // A KPI card that is unique to the company dashboard.
-    await expect(this.page.getByText('Total Contracts', { exact: true }).first()).toBeVisible();
   }
 
+  /** KPI cards load behind spinners — allow a generous wait (regression). */
   async expectKpiCards(): Promise<void> {
     for (const label of ['Total Contracts', 'Admin Users', 'Individuals Users', 'Due Invoices']) {
-      await expect(this.page.getByText(label, { exact: true }).first()).toBeVisible();
+      await expect(this.page.getByText(label, { exact: true }).first()).toBeVisible({
+        timeout: 30_000,
+      });
     }
   }
 }

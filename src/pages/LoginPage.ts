@@ -22,17 +22,25 @@ export class LoginPage extends BasePage {
     return this.page.getByRole('button', { name: /Individual Login/i });
   }
 
-  private get usernameInput(): Locator {
-    // Email (company) and national-ID (individual) share the first textbox slot.
-    return this.page.getByRole('textbox', { name: /Email|National|Identity|رقم/i }).first();
+  private get emailInput(): Locator {
+    return this.page.getByRole('textbox', { name: /Email/i });
+  }
+
+  private get idNumberInput(): Locator {
+    return this.page.getByRole('textbox', { name: /ID Number/i });
   }
 
   private get passwordInput(): Locator {
     return this.page.getByRole('textbox', { name: /Password/i });
   }
 
-  private get submitButton(): Locator {
-    return this.page.getByRole('button', { name: /^Login$/ }).last();
+  /** The submit button INSIDE a given tab's panel (not the header "Login"). */
+  private loginButtonIn(tab: 'Company Login' | 'Individual Login'): Locator {
+    return this.page.getByRole('tabpanel', { name: tab }).getByRole('button', { name: /^Login$/ });
+  }
+
+  private get continueButton(): Locator {
+    return this.page.getByRole('button', { name: /^Continue$/ });
   }
 
   /** The six single-character OTP inputs, in order. */
@@ -51,20 +59,39 @@ export class LoginPage extends BasePage {
    */
   async loginAs(role: Role): Promise<void> {
     const creds = credentials(role);
-    await this.openForm(creds);
-    await this.usernameInput.fill(creds.username);
-    await this.passwordInput.fill(creds.password);
-    await this.submitButton.click();
+    if (creds.method === 'company') {
+      await this.companyLogin(creds);
+    } else {
+      await this.individualLogin(creds);
+    }
     await this.enterOtp(creds.otp);
     // Landing on any authenticated route means the OTP was accepted.
     await this.page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30_000 });
   }
 
-  private async openForm(creds: RoleCredentials): Promise<void> {
-    // The role-selection screen exposes Company/Individual entry buttons that
-    // open the tabbed form with the matching tab preselected.
-    const entry = creds.method === 'company' ? this.companyLoginButton : this.individualLoginButton;
-    await entry.click();
+  /** Company / Admin: single-step email + password form. */
+  private async companyLogin(creds: RoleCredentials): Promise<void> {
+    await this.companyLoginButton.click();
+    await this.emailInput.fill(creds.username);
+    await this.passwordInput.fill(creds.password);
+    await this.loginButtonIn('Company Login').click();
+  }
+
+  /**
+   * Individual: two-step form — national ID → Continue, then the password
+   * field appears → Login. (Verified live in Phase 1.)
+   */
+  private async individualLogin(creds: RoleCredentials): Promise<void> {
+    await this.individualLoginButton.click();
+    // Type with real keystrokes (not fill) so the framework commits the value
+    // before Continue submits — fill() can race the controlled input.
+    await this.idNumberInput.pressSequentially(creds.username);
+    await this.continueButton.click();
+    // The password panel renders after an async check; type with real
+    // keystrokes so the framework's controlled-input state is committed before
+    // we submit (a plain fill() can race the re-render and submit empty).
+    await this.passwordInput.pressSequentially(creds.password);
+    await this.loginButtonIn('Individual Login').click();
   }
 
   /**

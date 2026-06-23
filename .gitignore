@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Secrets — NEVER commit real credentials. Only .env.example is committed.
+.env
+.env.*
+!.env.example
+
+# Playwright outputs
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Auth storage state (session reuse) — may contain tokens
+.auth/
+storage-state/
+
+# Self-healing runtime artifacts (the fingerprint store IS committed; reports are not)
+healing-report/
+healing-report.json
+
+# Logs / OS / editor
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.playwright-mcp/

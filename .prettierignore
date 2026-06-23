@@ -1,0 +1,8 @@
+node_modules/
+.claude/
+test-results/
+playwright-report/
+blob-report/
+healing-report/
+.auth/
+package-lock.json

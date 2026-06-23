@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { test as setup, expect } from '@playwright/test';
 import { LoginPage } from '../src/pages/LoginPage';
-import { authFile, AUTH_DIR } from '../src/fixtures/auth-state';
+import { authFile, AUTH_DIR, sessionIsFresh } from '../src/fixtures/auth-state';
 import type { Role } from '../src/config/env';
 
 /**
@@ -39,6 +39,10 @@ const roles: Role[] = ['admin', 'companyAdmin', 'individual'];
 
 for (const role of roles) {
   setup(`authenticate ${role} @smoke @regression`, async ({ page }) => {
+    // Reuse a recently-minted session rather than logging in again — this is
+    // what keeps repeated runs under the login rate limit.
+    setup.skip(sessionIsFresh(role), `reusing fresh ${role} session`);
+
     const login = new LoginPage(page);
     await login.goto();
     await login.loginAs(role);

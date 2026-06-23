@@ -32,6 +32,17 @@ export default tseslint.config(
     },
   },
   {
+    // The auth setup is a special case: it legitimately branches on whether a
+    // session already exists (setup.skip) and throttles against a server-side
+    // rate limit (waitForTimeout). Neither applies to ordinary tests.
+    files: ['tests/auth.setup.ts'],
+    rules: {
+      'playwright/no-conditional-in-test': 'off',
+      'playwright/no-wait-for-timeout': 'off',
+      'playwright/no-skipped-test': 'off',
+    },
+  },
+  {
     rules: {
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],

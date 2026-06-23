@@ -78,5 +78,9 @@ export class LoginPage extends BasePage {
     for (let i = 0; i < digits.length; i++) {
       await this.otpBox(i).pressSequentially(digits[i]);
     }
+    // Some roles auto-submit on the final keystroke; others don't. Pressing
+    // Enter is the reliable trigger across all roles (verified in Phase 1) and
+    // is a no-op once the form has already navigated.
+    await this.page.keyboard.press('Enter');
   }
 }

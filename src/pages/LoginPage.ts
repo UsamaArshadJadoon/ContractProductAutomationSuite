@@ -109,9 +109,15 @@ export class LoginPage extends BasePage {
   private async enterOtp(otp: string): Promise<void> {
     const digits = otp.split('');
     expect(digits, 'OTP must be 6 digits').toHaveLength(6);
-    for (let i = 0; i < digits.length; i++) {
+    // Fill all but the last box directly (avoids the focus auto-advance race),
+    // then type the final digit as a REAL keystroke: the component auto-submits
+    // on the last key event, which fill() alone does not fire.
+    for (let i = 0; i < digits.length - 1; i++) {
       await this.otpBox(i).fill(digits[i]);
     }
+    const last = digits.length - 1;
+    await this.otpBox(last).pressSequentially(digits[last]);
+    // Fallback for any role that doesn't auto-submit; a no-op once navigated.
     await this.page.keyboard.press('Enter');
   }
 }

@@ -44,11 +44,13 @@ export default defineConfig({
     // Mints one reusable session per role; everything else depends on it.
     {
       name: 'setup',
-      testMatch: /auth\.setup\.ts/,
+      testMatch: /auth\.setup\.ts$/,
     },
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      // Only spec files — never the setup file — run as chromium tests.
+      testMatch: /\.spec\.ts$/,
       dependencies: ['setup'],
     },
   ],

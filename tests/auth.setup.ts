@@ -35,7 +35,10 @@ setup.beforeAll(() => {
   fs.mkdirSync(AUTH_DIR, { recursive: true });
 });
 
-const roles: Role[] = ['admin', 'companyAdmin', 'individual'];
+// FOCUS: company portal only. Admin/Individual are disabled for now (one login
+// per run also keeps us well clear of the login rate limit). Re-add them here
+// when broadening scope: ['admin', 'companyAdmin', 'individual'].
+const roles: Role[] = ['companyAdmin'];
 
 for (const role of roles) {
   setup(`authenticate ${role} @smoke @regression`, async ({ page }) => {

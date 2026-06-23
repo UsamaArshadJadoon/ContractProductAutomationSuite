@@ -8,21 +8,9 @@ import { test, expect } from '../../src/fixtures/roles';
  * verify the reused session works and that protected routes are guarded.
  */
 test.describe('Authentication — session @smoke @auth', () => {
-  test('AUTH-202: stored Admin session reaches the dashboard without re-login', async ({
-    adminPage,
-  }) => {
-    await adminPage.goto('/admin/dashboard');
-    await expect(adminPage).toHaveURL(/\/admin\/dashboard/);
-  });
-
   test('AUTH-202: stored Company session reaches the dashboard', async ({ companyPage }) => {
     await companyPage.goto('/company/dashboard');
     await expect(companyPage).toHaveURL(/\/company\/dashboard/);
-  });
-
-  test('AUTH-202: stored Individual session reaches the dashboard', async ({ individualPage }) => {
-    await individualPage.goto('/individual/dashboard');
-    await expect(individualPage).toHaveURL(/\/individual\/dashboard/);
   });
 
   test('AUTH-203: unauthenticated access to a protected route grants no session', async ({

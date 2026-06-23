@@ -18,26 +18,9 @@ test.describe('RBAC @smoke @rbac', () => {
     }
   });
 
-  test('RBAC-002: Individual sidebar exposes only its own surface', async ({ individualPage }) => {
-    await individualPage.goto('/individual/dashboard');
-    const sidebar = new Sidebar(individualPage);
-    await sidebar.expectLoaded();
-    for (const item of [...ADMIN_ONLY, 'Templates', 'My Invoices', 'My Subscriptions']) {
-      await sidebar.expectAbsent(item);
-    }
-  });
-
   // Deep-linking a non-admin into /admin/* leaves a blank shell (the admin app
   // doesn't render for them) and may not change the URL — so the reliable
   // security assertion is that NO admin-only functionality is reachable.
-  test('RBAC-003: Individual cannot access the admin area', async ({ individualPage }) => {
-    await individualPage.goto('/admin/dashboard');
-    const sidebar = new Sidebar(individualPage);
-    for (const item of ADMIN_ONLY) {
-      await sidebar.expectAbsent(item);
-    }
-  });
-
   test('RBAC-005: Company Admin cannot access the admin area', async ({ companyPage }) => {
     await companyPage.goto('/admin/dashboard');
     const sidebar = new Sidebar(companyPage);

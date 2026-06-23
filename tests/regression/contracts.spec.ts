@@ -1,8 +1,7 @@
 import { test } from '../../src/fixtures/roles';
 import { CompanyContractsPage } from '../../src/pages/company/CompanyContractsPage';
-import { IndividualContractsPage } from '../../src/pages/individual/IndividualContractsPage';
 
-/** Contracts listing & navigation (CO-101, IND-101/103). */
+/** Company contracts listing & navigation (CO-101, CO-201). Company focus. */
 test.describe('Contracts management @regression @contracts', () => {
   test('CO-101: company contracts page loads and Contracts/Drafts tabs switch', async ({
     companyPage,
@@ -19,14 +18,5 @@ test.describe('Contracts management @regression @contracts', () => {
     await contracts.goto();
     await contracts.expectLoaded();
     await contracts.startCreateContract();
-  });
-
-  test('IND-101: individual contracts table loads with expected columns', async ({
-    individualPage,
-  }) => {
-    const contracts = new IndividualContractsPage(individualPage);
-    await contracts.goto();
-    await contracts.expectLoaded();
-    await contracts.expectColumns();
   });
 });

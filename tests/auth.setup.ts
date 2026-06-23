@@ -27,7 +27,7 @@ const LANDING: Record<Role, RegExp> = {
  * deliberate throttle against a server-side limit, not a UI synchronization
  * wait (tests themselves use only web-first assertions). Configurable via env.
  */
-const COOLDOWN_MS = Number(process.env.LOGIN_SETUP_COOLDOWN_MS ?? '4000');
+const COOLDOWN_MS = Number(process.env.LOGIN_SETUP_COOLDOWN_MS ?? '12000');
 
 setup.describe.configure({ mode: 'serial' });
 
@@ -39,6 +39,9 @@ const roles: Role[] = ['admin', 'companyAdmin', 'individual'];
 
 for (const role of roles) {
   setup(`authenticate ${role} @smoke @regression`, async ({ page }) => {
+    // Allow room for a slow login + the inter-login rate-limit cooldown.
+    setup.setTimeout(120_000);
+
     // Reuse a recently-minted session rather than logging in again — this is
     // what keeps repeated runs under the login rate limit.
     setup.skip(sessionIsFresh(role), `reusing fresh ${role} session`);

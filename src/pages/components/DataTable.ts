@@ -38,7 +38,8 @@ export class DataTable {
   }
 
   async expectLoaded(): Promise<void> {
-    await expect(this.table).toBeVisible();
+    // Tables render after the SPA splash + a data fetch — allow a generous wait.
+    await expect(this.table).toBeVisible({ timeout: 30_000 });
   }
 
   async expectHasRows(): Promise<void> {

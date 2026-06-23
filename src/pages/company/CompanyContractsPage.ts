@@ -25,7 +25,8 @@ export class CompanyContractsPage extends BasePage {
 
   async expectLoaded(): Promise<void> {
     await expect(this.page).toHaveURL(/contract-management/);
-    await expect(this.createButton).toBeVisible();
+    // Allow for the SPA splash before the page chrome renders.
+    await expect(this.createButton).toBeVisible({ timeout: 30_000 });
     await expect(this.tab('Contracts')).toBeVisible();
     await expect(this.tab('Drafts')).toBeVisible();
   }
@@ -39,6 +40,8 @@ export class CompanyContractsPage extends BasePage {
   async startCreateContract(): Promise<void> {
     await this.createButton.click();
     await expect(this.page).toHaveURL(/create-contract/);
-    await expect(this.page.getByText('Upload Document', { exact: true })).toBeVisible();
+    await expect(this.page.getByText('Upload Document', { exact: true })).toBeVisible({
+      timeout: 30_000,
+    });
   }
 }

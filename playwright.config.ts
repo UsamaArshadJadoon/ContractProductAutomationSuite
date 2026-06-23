@@ -17,8 +17,9 @@ export default defineConfig({
   // Fail the CI build if someone leaves `test.only` in the source.
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  // In CI we shard across machines; locally use all cores.
-  workers: isCI ? 1 : undefined,
+  // In CI we shard across machines; locally cap workers so we don't overwhelm
+  // the shared UAT app (slow renders + a rate-limited login).
+  workers: isCI ? 1 : 4,
   timeout: 60_000,
   expect: {
     timeout: 10_000,

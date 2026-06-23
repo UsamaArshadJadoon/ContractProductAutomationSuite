@@ -19,7 +19,11 @@ export abstract class BasePage {
     const title = await this.page.title();
     const isEnglish = title.trim() === 'Digital Contracts';
     if (wantEnglish !== isEnglish) {
-      await this.page.getByText('language', { exact: true }).first().click();
+      // The toggle is a client-side state change, not a real navigation, but
+      // Playwright would otherwise block the click waiting for a "scheduled
+      // navigation" that never completes. Skip that wait and confirm via the
+      // localized title flipping instead.
+      await this.page.getByText('language', { exact: true }).first().click({ noWaitAfter: true });
       // Wait for the localized title to settle rather than a fixed delay.
       await this.page.waitForFunction(
         (english) =>

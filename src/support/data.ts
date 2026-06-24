@@ -24,6 +24,9 @@ export const sampleFiles = {
 /** National ID of the Individual test account, used as the contract recipient. */
 export const TEST_RECIPIENT_ID = process.env.INDIVIDUAL_USERNAME ?? '1012131452';
 
+/** The name the portal auto-fills for the recipient ID above. */
+export const TEST_RECIPIENT_NAME = 'Mohammed Mohammed';
+
 export interface ContractDetails {
   fileName: string;
   contractNumber: string;

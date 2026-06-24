@@ -146,4 +146,57 @@ export class CreateContractPage extends BasePage {
       this.page.getByRole('textbox', { name: /Name in English/i }).first(),
     ).not.toHaveValue('', { timeout: 15_000 });
   }
+
+  // ── Step 3: Prepare + Send ───────────────────────────────────────────────────
+  get sendForApprovalButton(): Locator {
+    return this.page.getByRole('button', { name: /Send For Approval/i });
+  }
+
+  /** From Add Recipients, advance to the Prepare editor and wait for it. */
+  async continueToPrepare(): Promise<void> {
+    await this.continueButton.click();
+    await this.page
+      .getByText(/being prepared/i)
+      .waitFor({ state: 'hidden', timeout: 60_000 })
+      .catch(() => {});
+    await expect(this.sendForApprovalButton).toBeVisible({ timeout: 60_000 });
+  }
+
+  /**
+   * Place a Signature field for the given recipient (required before sending).
+   * Selecting the recipient switches the palette to THEIR field types; the field
+   * is then dragged onto the document via real mouse events (Angular CDK DnD).
+   */
+  async placeSignatureForRecipient(recipientName: string): Promise<void> {
+    await this.page.getByText(recipientName).first().click();
+    await this.page.waitForTimeout(1000);
+    const viewer = this.page.locator('dc-pdf-viewer').first();
+    const vbox = await viewer.boundingBox();
+    const field = this.page.getByText('Signature', { exact: true }).first();
+    const fb = await field.boundingBox();
+    if (!vbox || !fb) throw new Error('Could not locate the Signature field or document viewer');
+    await this.page.mouse.move(fb.x + fb.width / 2, fb.y + fb.height / 2);
+    await this.page.mouse.down();
+    await this.page.mouse.move(vbox.x + vbox.width / 2, vbox.y + 220, { steps: 18 });
+    await this.page.mouse.move(vbox.x + vbox.width / 2 + 4, vbox.y + 224, { steps: 4 });
+    await this.page.mouse.up();
+    await this.page.waitForTimeout(1000);
+  }
+
+  /**
+   * Send the contract for approval and confirm the "Send Contract" dialog. The
+   * contract is created server-side and we return to the contracts list.
+   */
+  async sendForApproval(): Promise<void> {
+    await this.sendForApprovalButton.click();
+    await this.page
+      .getByRole('dialog')
+      .getByRole('button', { name: /^Confirm$/ })
+      .click({ timeout: 15_000 });
+    // A success dialog confirms creation ("...ready for review and signature.
+    // Access link has been sent to the recipients.").
+    await expect(
+      this.page.getByText(/ready for review|has been sent|successfully/i).first(),
+    ).toBeVisible({ timeout: 30_000 });
+  }
 }

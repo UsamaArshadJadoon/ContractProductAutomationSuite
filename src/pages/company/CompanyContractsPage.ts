@@ -62,6 +62,12 @@ export class CompanyContractsPage extends BasePage {
     });
   }
 
+  /** Search for a contract by reference and assert its row shows `status`. */
+  async expectStatus(reference: string, status: RegExp): Promise<void> {
+    await this.search(reference);
+    await expect(this.row(reference)).toContainText(status, { timeout: 30_000 });
+  }
+
   /** Row matching the given text (e.g. reference number or status). */
   private row(match: string | RegExp): Locator {
     return this.page

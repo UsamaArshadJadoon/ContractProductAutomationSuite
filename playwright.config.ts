@@ -16,10 +16,12 @@ export default defineConfig({
   fullyParallel: true,
   // Fail the CI build if someone leaves `test.only` in the source.
   forbidOnly: isCI,
-  retries: isCI ? 2 : 0,
-  // In CI we shard across machines; locally cap workers so we don't overwhelm
-  // the shared UAT app (slow renders + a rate-limited login).
-  workers: isCI ? 1 : 4,
+  // A local retry absorbs transient UAT slowness (the shared env is slow under
+  // load); CI retries twice.
+  retries: isCI ? 2 : 1,
+  // Run serially: the shared UAT app is slow and flakes under concurrent load
+  // (heavy create+send flows, SPA splash). CI parallelizes across shards instead.
+  workers: 1,
   timeout: 60_000,
   expect: {
     timeout: 10_000,

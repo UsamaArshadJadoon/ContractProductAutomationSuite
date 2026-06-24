@@ -30,17 +30,23 @@ test.describe('Contract upload @regression @contracts @upload', () => {
     await wizard.expectContinueDisabled();
   });
 
-  test('CM-U-03: required fields are enforced (clearing File Name disables Continue)', async ({
-    companyPage,
-  }) => {
+  test('CM-U-03: uploading a document auto-populates the File Name', async ({ companyPage }) => {
     const wizard = new CreateContractPage(companyPage);
     await wizard.goto();
     await wizard.uploadMainDocument(sampleFiles.pdf);
-    await wizard.fillDetails(buildContractDetails());
-    await wizard.expectContinueEnabled();
-    // Clear a required field — Continue must disable again.
-    await companyPage.getByRole('textbox', { name: /File Name/i }).fill('');
-    await wizard.expectContinueDisabled();
+    await wizard.expectFileNameAutoFilled();
+  });
+
+  test('CM-U-06: Contract Number is required (advance blocked without it)', async ({
+    companyPage,
+  }) => {
+    const details = buildContractDetails();
+    const wizard = new CreateContractPage(companyPage);
+    await wizard.goto();
+    await wizard.uploadMainDocument(sampleFiles.pdf);
+    await companyPage.getByRole('textbox', { name: /File Name/i }).fill(details.fileName);
+    await companyPage.getByRole('textbox', { name: /Grace Period/i }).fill(details.gracePeriod);
+    await wizard.expectAdvanceBlocked();
   });
 
   test('CM-U-04: an unsupported file type is not accepted as the main document', async ({

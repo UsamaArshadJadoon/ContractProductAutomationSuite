@@ -59,7 +59,10 @@ export class CreateContractPage extends BasePage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/company/management/contract-management/create-contract');
+    // domcontentloaded: this SPA holds connections open, so 'load' may never fire.
+    await this.page.goto('/company/management/contract-management/create-contract', {
+      waitUntil: 'domcontentloaded',
+    });
     await expect(this.page.getByText('Upload Document', { exact: true })).toBeVisible({
       timeout: 30_000,
     });
@@ -97,6 +100,20 @@ export class CreateContractPage extends BasePage {
 
   async expectContinueDisabled(): Promise<void> {
     await expect(this.continueButton).toBeDisabled();
+  }
+
+  /** Click Continue and assert the wizard did NOT advance past the upload step
+   * (required-field validation blocks the submit rather than disabling Continue). */
+  async expectAdvanceBlocked(): Promise<void> {
+    await this.continueButton.click();
+    await this.page.waitForTimeout(1500);
+    await expect(this.page.getByRole('textbox', { name: /Id Number/i })).toHaveCount(0);
+    await expect(this.page.getByText('Upload Contract Documents')).toBeVisible();
+  }
+
+  /** Uploading a document auto-populates the File Name field. */
+  async expectFileNameAutoFilled(): Promise<void> {
+    await expect(this.fileNameInput).not.toHaveValue('', { timeout: 10_000 });
   }
 
   /** Advance to the Add Recipients step and confirm it rendered. */

@@ -20,7 +20,10 @@ export class CompanyContractsPage extends BasePage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/company/management/contract-management');
+    // domcontentloaded: this SPA holds connections open, so 'load' may never fire.
+    await this.page.goto('/company/management/contract-management', {
+      waitUntil: 'domcontentloaded',
+    });
   }
 
   async expectLoaded(): Promise<void> {
@@ -57,5 +60,41 @@ export class CompanyContractsPage extends BasePage {
     await expect(this.page.getByRole('row', { name: new RegExp(text, 'i') }).first()).toBeVisible({
       timeout: 30_000,
     });
+  }
+
+  /** Row matching the given text (e.g. reference number or status). */
+  private row(match: string | RegExp): Locator {
+    return this.page
+      .getByRole('row')
+      .filter({ hasText: typeof match === 'string' ? new RegExp(match, 'i') : match })
+      .first();
+  }
+
+  /** Open the per-row Action (kebab) menu for the row matching `match`. */
+  async openActionMenu(match: string | RegExp): Promise<void> {
+    const row = this.row(match);
+    await row.waitFor({ timeout: 30_000 });
+    await row.getByRole('button').last().click();
+    await expect(this.page.getByRole('menuitem').first()).toBeVisible({ timeout: 10_000 });
+  }
+
+  /** Visible action-menu item labels. */
+  async actionMenuItems(): Promise<string[]> {
+    return this.page.getByRole('menuitem').allInnerTexts();
+  }
+
+  async closeMenu(): Promise<void> {
+    await this.page.keyboard.press('Escape');
+  }
+
+  /**
+   * Copy the public approval link for the row matching `match` and return it.
+   * Requires clipboard permission (granted by the caller's context).
+   */
+  async copyApprovalLink(match: string | RegExp): Promise<string> {
+    await this.openActionMenu(match);
+    await this.page.getByRole('menuitem', { name: /Copy Link/i }).click();
+    await this.page.waitForTimeout(500);
+    return this.page.evaluate(() => navigator.clipboard.readText());
   }
 }

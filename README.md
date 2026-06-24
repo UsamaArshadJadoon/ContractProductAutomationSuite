@@ -115,5 +115,5 @@ docs/                    feature inventory + test catalog (kept current)
 ## Docs
 
 - [docs/feature-inventory.md](docs/feature-inventory.md) — verified app surface, per role.
-- [docs/test-catalog.md](docs/test-catalog.md) — tagged case catalog mapped to features.
+- [tests/README.md](tests/README.md) — test structure (role-wise folders) + record→adapt workflow.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to add a page object and a test.

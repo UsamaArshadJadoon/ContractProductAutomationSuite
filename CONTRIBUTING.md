@@ -85,7 +85,8 @@ test('CO-305: company invoices list loads @regression @company', async ({ compan
 });
 ```
 
-Then map the case ID back to a feature in [docs/test-catalog.md](docs/test-catalog.md).
+Place the spec in the matching role folder (`tests/admin|company|individual/`) —
+see [tests/README.md](tests/README.md) for the record→adapt workflow.
 
 ## Before you push
 
@@ -100,6 +101,6 @@ suite runs nightly.
 
 ## Updating the docs
 
-The feature inventory and test catalog are living documents. When you cover a
-new area or discover new behaviour, update [docs/feature-inventory.md](docs/feature-inventory.md)
-and [docs/test-catalog.md](docs/test-catalog.md) in the same PR.
+The feature inventory is a living document. When you cover a new area or
+discover new behaviour, update [docs/feature-inventory.md](docs/feature-inventory.md)
+in the same PR.

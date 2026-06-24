@@ -44,7 +44,7 @@ test.describe('Contract approval E2E @regression @contracts @approval @e2e', () 
     //  2. The placed Signature field must be completed on the public page
     //     before Approve — that signing modal step is not yet automated.
     // The create→send half is fully verified by CM-E-00.
-    test.fixme(true, 'Public approval OTP throttled + signature-completion step pending');
+    test.fixme(true, 'Public approval signing-pad completion step not yet automated');
     test.setTimeout(180_000);
     await companyPage.context().grantPermissions(['clipboard-read', 'clipboard-write']);
 
@@ -61,7 +61,7 @@ test.describe('Contract approval E2E @regression @contracts @approval @e2e', () 
     companyPage,
     browser,
   }) => {
-    test.fixme(true, 'Public approval OTP throttled + signature-completion step pending');
+    test.fixme(true, 'Public approval signing-pad completion step not yet automated');
     test.setTimeout(180_000);
     await companyPage.context().grantPermissions(['clipboard-read', 'clipboard-write']);
 

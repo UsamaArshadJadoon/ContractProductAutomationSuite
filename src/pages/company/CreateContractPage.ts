@@ -169,10 +169,13 @@ export class CreateContractPage extends BasePage {
    */
   async placeSignatureForRecipient(recipientName: string): Promise<void> {
     await this.page.getByText(recipientName).first().click();
-    await this.page.waitForTimeout(1000);
+    const field = this.page.getByText('Signature', { exact: true }).first();
+    // Selecting the recipient swaps the palette to their fields; wait for the
+    // Signature field to appear before dragging (avoids a race under load).
+    await expect(field).toBeVisible({ timeout: 20_000 });
+    await this.page.waitForTimeout(500);
     const viewer = this.page.locator('dc-pdf-viewer').first();
     const vbox = await viewer.boundingBox();
-    const field = this.page.getByText('Signature', { exact: true }).first();
     const fb = await field.boundingBox();
     if (!vbox || !fb) throw new Error('Could not locate the Signature field or document viewer');
     await this.page.mouse.move(fb.x + fb.width / 2, fb.y + fb.height / 2);

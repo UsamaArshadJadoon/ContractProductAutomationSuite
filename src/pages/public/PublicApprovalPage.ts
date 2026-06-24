@@ -65,11 +65,15 @@ export class PublicApprovalPage {
     await expect(this.acceptTermsButton).toBeEnabled();
   }
 
-  /** Accept the terms to reveal the document approve/decline controls. */
+  /** Accept the terms and dismiss the grace-period info dialog that follows. */
   async acceptTerms(): Promise<void> {
     if (!(await this.termsCheckbox.isChecked())) await this.termsCheckbox.check();
     await this.acceptTermsButton.click();
-    await expect(this.approveButton).toBeVisible({ timeout: 30_000 });
+    // An informational "Contract Grace Period" dialog appears after accepting.
+    await this.page
+      .getByRole('button', { name: /I Understand/i })
+      .click({ timeout: 8_000 })
+      .catch(() => {});
   }
 
   /** Confirm a follow-up dialog (Approve/Decline often ask to confirm). */

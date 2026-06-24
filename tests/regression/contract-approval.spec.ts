@@ -43,14 +43,13 @@ test.describe('Contract approval @regression @contracts @approval', () => {
     expect(url).toMatch(APPROVAL_URL);
   });
 
-  test('CM-A-03: the public approval page renders the OTP/terms gate @smoke', async ({
+  test('CM-A-03: the public approval page passes OTP and renders the terms gate', async ({
     companyPage,
     browser,
   }) => {
-    // KNOWN BLOCKER: our own contract's public page requires OTP verification,
-    // which is throttled after heavy OTP use in a session. Enable on a fresh
-    // session. (Mechanism implemented in PublicApprovalPage.)
-    test.fixme(true, 'Public approval OTP verification throttled');
+    // Passes in isolation; the public OTP verification rate-limits when several
+    // OTP-driven tests run together, so it is gated to avoid flakiness in a run.
+    test.fixme(process.env.RUN_PUBLIC_OTP !== '1', 'Public OTP throttles under concurrent runs');
     test.setTimeout(180_000);
     await companyPage.context().grantPermissions(['clipboard-read', 'clipboard-write']);
     const contractNumber = await createAndSendContract(companyPage);
@@ -64,7 +63,7 @@ test.describe('Contract approval @regression @contracts @approval', () => {
   });
 
   test('CM-A-04: Accept is gated by the terms checkbox', async ({ companyPage, browser }) => {
-    test.fixme(true, 'Public approval OTP verification throttled');
+    test.fixme(process.env.RUN_PUBLIC_OTP !== '1', 'Public OTP throttles under concurrent runs');
     test.setTimeout(180_000);
     await companyPage.context().grantPermissions(['clipboard-read', 'clipboard-write']);
     const contractNumber = await createAndSendContract(companyPage);
